@@ -1,3 +1,11 @@
+try:
+    from kivy_garden.effectwidget.blur import FXBlurEffect # type: ignore
+    BLUR_AVAILABLE = True
+except Exception:
+    FXBlurEffect = None
+    BLUR_AVAILABLE = False
+
+
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.core.window import Window

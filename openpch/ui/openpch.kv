@@ -1,130 +1,125 @@
-#:kivy 2.3.0
+#:import rgba kivy.utils.get_color_from_hex
+#:import dp kivy.metrics.dp
 
-<NeonLabel@Label>:
-    font_size: "18sp"
-    color: 0, 1, 0.9, 1   # cyan glow
+<NeonButton@Button>:
+    font_size: '16sp'
+    background_normal: ''
+    background_color: rgba('#002233AA')
+    color: rgba('#33ccffff')
     canvas.before:
         Color:
-            rgba: 0, 1, 0.9, 0.2
+            rgba: rgba('#33ccff22')
+        Line:
+            width: 1.5
+            rounded_rectangle: (self.x, self.y, self.width, self.height, dp(6))
+    on_press:
+        background_color = rgba('#005577AA')
+    on_release:
+        background_color = rgba('#002233AA')
+
+<LabelGlow@Label>:
+    font_size: '14sp'
+    color: rgba('#33ccffff')
+    canvas.before:
+        Color:
+            rgba: rgba('#33ccff22')
+        Line:
+            width: 1
+            rectangle: (self.x - dp(2), self.y - dp(2), self.width + dp(4), self.height + dp(4))
+
+ScreenManager:
+    MainScreen:
+
+<MainScreen>:
+    name: 'main'
+    canvas.before:
+        Color:
+            rgba: rgba('#0f111a')
         Rectangle:
             pos: self.pos
             size: self.size
 
-<GlassPanel@BoxLayout>:
-    orientation: "vertical"
-    padding: dp(15)
-    spacing: dp(10)
-    size_hint: None, None
-    size: dp(300), dp(200)
-    canvas.before:
-        Color:
-            rgba: (1,1,1,0.08)  # glass opacity
-        RoundedRectangle:
-            pos: self.pos
-            size: self.size
-            radius: [12]
-        Color:
-            rgba: (0,1,1,0.25)  # cyan border glow
-        Line:
-            width: 1.3
-            rounded_rectangle: (self.x, self.y, self.width, self.height, 12)
+    GridLayout:
+        cols: 2
+        padding: dp(20)
+        spacing: dp(20)
 
-<MainScreen>:
-    name: "main"
-    BoxLayout:
-        orientation: "vertical"
-        spacing: dp(10)
-        canvas.before:
-            Color:
-                rgba: 1,1,1,0.03
-            Rectangle:
-                size: self.size
-                pos: self.pos
-
-        # Top Bar
+        # Left: Mouse Visual + Quick Stats
         BoxLayout:
-            size_hint_y: None
-            height: dp(50)
-            padding: dp(15)
+            orientation: 'vertical'
+            padding: dp(10)
+            spacing: dp(10)
             canvas.before:
                 Color:
-                    rgba: 0, 0, 0, 0.6
-                Rectangle:
-                    size: self.size
+                    rgba: rgba('#1a1c2a')
+                RoundedRectangle:
                     pos: self.pos
+                    size: self.size
+                    radius: [dp(10)]
             Label:
-                text: "OpenPCH — Open Peripheral Control Hub"
-                bold: True
-                color: 0.8, 0.9, 1, 1
-                font_size: "20sp"
+                text: '[b]Device:[/b] ' + (root.selected_device.name if root.selected_device else "None")
+                markup: True
+                **italic**
+                halign: 'left'
+                size_hint_y: None
+                height: dp(30)
+                color: rgba('#33ccffff')
+            # Placeholder for graphical device representation
+            Label:
+                text: '🖱'
+                font_size: '120sp'
+                size_hint_y: None
+                height: dp(140)
+                color: rgba('#33ccffff')
 
-        # Main Content
+        # Right: Controls Panel
         BoxLayout:
-            padding: dp(20)
+            orientation: 'vertical'
             spacing: dp(20)
+            padding: dp(10)
+            canvas.before:
+                Color:
+                    rgba: rgba('#1a1c2a')
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [dp(10)]
 
-            # Left Panel: Devices
-            GlassPanel:
-                BoxLayout:
-                    orientation: "vertical"
-                    spacing: dp(10)
-                    Label:
-                        text: "Devices"
-                        bold: True
-                        font_size: "16sp"
-                        color: 1,1,1,1
-                    RecycleView:
-                        viewclass: "Label"
-                        data: [{"text": d["name"], "color": (0.9,0.9,0.9,1)} for d in root.devices]
-                        RecycleBoxLayout:
-                            orientation: "vertical"
-                            default_size: None, dp(40)
-                            size_hint_y: None
-                            height: self.minimum_height
+            LabelGlow:
+                text: 'DPI'
+            Slider:
+                min: 200
+                max: 16000
+                value: root.dpi
+                on_value: root.dpi = self.value
+                cursor_image: ''  # Custom cursor if desired
+            Label:
+                text: str(int(root.dpi))
+                font_size: '18sp'
+                color: rgba('#33ccffff')
+                size_hint_y: None
+                height: dp(30)
 
-            # Right Panel: Settings
-            GlassPanel:
-                BoxLayout:
-                    orientation: "vertical"
-                    spacing: dp(10)
+            LabelGlow:
+                text: 'RGB Color'
+            # Simplify color wheel to brightness slider for minimal design
+            Slider:
+                min: 0
+                max: 1
+                value: root.rgb_color[0]
+                on_value: root.rgb_color = [self.value, self.value, self.value, 1]
+                cursor_image: ''
 
-                    Label:
-                        text: root.status_text
-                        color: 0.6, 0.9, 1, 1
-                        font_size: "14sp"
-
-                    BoxLayout:
-                        spacing: dp(10)
-                        Label:
-                            text: "DPI"
-                            color: 0.9, 0.9, 0.9, 1
-                        Slider:
-                            min: 200
-                            max: 16000
-                            step: 100
-                            value: root.dpi
-                            on_value: root.dpi = self.value
-
-                    BoxLayout:
-                        spacing: dp(10)
-                        Label:
-                            text: "RGB"
-                            color: 0.9, 0.9, 0.9, 1
-                        ColorPicker:
-                            size_hint_y: None
-                            height: dp(200)
-                            on_color: root.rgb_color = self.color
-
-                    BoxLayout:
-                        size_hint_y: None
-                        height: dp(40)
-                        spacing: dp(10)
-                        Button:
-                            text: "Connect / Disconnect"
-                            on_release: root.toggle_connect()
-                        Button:
-                            text: "Save Profile"
-                            on_release: root.save_profile()
-                        Button:
-                            text: "Export Profile"
-                            on_release: root.export_profile_json()
+            BoxLayout:
+                size_hint_y: None
+                height: dp(50)
+                spacing: dp(10)
+                NeonButton:
+                    text: root.connected and 'Disconnect' or 'Connect'
+                    on_release: root.toggle_connect()
+                NeonButton:
+                    text: 'Save Profile'
+                    on_release: root.save_profile()
+                NeonButton:
+                    text: 'Export'
+                    on_release: root.export_profile_json()
