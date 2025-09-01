@@ -8,7 +8,9 @@ from kivy.utils import get_color_from_hex
 import json
 import os
 
-KV = open("openpch.kv", "r").read()
+openpchkv = os.path.join(os.path.dirname(os.path.abspath(__file__)), "openpch.kv")
+
+KV = open(openpchkv, "r").read()
 
 class DeviceBackendMock:
     """Mock backend: replace methods to communicate with real devices (hidapi/pyusb/your lib)."""
