@@ -5,7 +5,7 @@
 <NeonButton@Button>:
     font_size: '16sp'
     background_normal: ''
-    background_color: rgba('#002233AA')
+    background_color: (*rgba('#002233')[:3], 0.9)
     color: rgba('#33ccffff')
     canvas.before:
         Color:
@@ -20,7 +20,7 @@
 
 <LabelGlow@Label>:
     font_size: '14sp'
-    color: rgba('#33ccffff')
+    color: (*rgba('#33ccff')[:3], 0.9)
     canvas.before:
         Color:
             rgba: rgba('#33ccff22')
@@ -35,7 +35,7 @@ ScreenManager:
     name: 'main'
     canvas.before:
         Color:
-            rgba: rgba('#0f111a')
+            rgba: (*rgba('#0f111a')[:3], 0.8)
         Rectangle:
             pos: self.pos
             size: self.size
@@ -60,7 +60,7 @@ ScreenManager:
             Label:
                 text: '[b]Device:[/b] ' + (root.selected_device.name if root.selected_device else "None")
                 markup: True
-                **italic**
+                italic: True
                 halign: 'left'
                 size_hint_y: None
                 height: dp(30)
